@@ -58,39 +58,39 @@ int get_port() {
 
 // Sets up and runs the host side of the application
 void run_host(io_context& io, ssl::context& ssl_context, std::atomic<bool>& connected, const string& ip, const string& name, int port) {
-	// Create a new Peer object for the host
+    // Create a new Peer object for the host
     auto host_peer = std::make_shared<Peer>(io, ssl_context, connected, name);
-	// Create an acceptor to listen for incoming connections
+    // Create an acceptor to listen for incoming connections
     tcp::acceptor acceptor(io, tcp::endpoint(ip::make_address(ip), port));
 
-	// Display connection information
+    // Display connection information
     cout << "Host IP: " << IP_ADDRESS << ", Port: " << port << endl;
     cout << "Waiting for someone to connect..." << endl;
 
     // Accept incoming connections
     acceptor.async_accept(host_peer->socket().lowest_layer(), [&host_peer](boost::system::error_code ec) {
         if (!ec) {
-			// Connection established
+            // Connection established
             cout << "Host: Connection established." << endl;
             host_peer->start_handshake(ssl::stream_base::server);
         }
         else {
-			// Error in accepting connection
+            // Error in accepting connection
             cout << "Host: Error in accepting connection: " << ec.message() << endl;
         }
         });
 
-	// Create and start a new thread to run IO Context event loop for asynchronous operations
-	// lambda function to capture the io context by reference
+    // Create and start a new thread to run IO Context event loop for asynchronous operations
+    // lambda function to capture the io context by reference
     std::thread io_thread([&io]() { io.run(); });
 
-	// Wait until the connection is established
+    // Wait until the connection is established
     while (!connected) {
-		// Sleep for a short duration to avoid busy-waiting
+        // Sleep for a short duration to avoid busy-waiting
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
-	// Prompt the user on how to exit the chat
+    // Prompt the user on how to exit the chat
     cout << "Enter 'exit' to quit the chat." << endl;
 
     // Message loop for the host
@@ -102,7 +102,7 @@ void run_host(io_context& io, ssl::context& ssl_context, std::atomic<bool>& conn
         if (!message.empty()) host_peer->send_message(message);
     }
 
-	// Shutdown the host peer and stop the IO context
+    // Shutdown the host peer and stop the IO context
     host_peer->shutdown();
     io.stop();
     io_thread.join(); // Wait for the IO thread to finish
@@ -110,28 +110,28 @@ void run_host(io_context& io, ssl::context& ssl_context, std::atomic<bool>& conn
 
 // Sets up and runs the client side of the application
 void run_client(io_context& io, ssl::context& ssl_context, std::atomic<bool>& connected, const string& host, const string& name, int port) {
-	// Create a new Peer object for the client
+    // Create a new Peer object for the client
     auto client_peer = std::make_shared<Peer>(io, ssl_context, connected, name);
 
-	// Display connection information
+    // Display connection information
     cout << "Host IP: 127.0.0.1, Port: " << port << endl;
 
     // Connect to the host
     client_peer->socket().lowest_layer().connect(tcp::endpoint(ip::make_address(host), port));
-	// Start the SSL handshake in client mode
+    // Start the SSL handshake in client mode
     client_peer->start_handshake(ssl::stream_base::client);
 
     // Create and start a new thread to run IO Context event loop for asynchronous operations
     std::thread io_thread([&io]() { io.run(); });
 
-	// Wait until the connection is established
+    // Wait until the connection is established
     while (!connected) {
-		// Sleep for a short duration to avoid busy-waiting
+        // Sleep for a short duration to avoid busy-waiting
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     // Prompt the user on how to exit the chat
-	cout << "Enter 'exit' to quit the chat." << endl;
+    cout << "Enter 'exit' to quit the chat." << endl;
 
     // Message loop for the client
     while (true) {
@@ -142,7 +142,7 @@ void run_client(io_context& io, ssl::context& ssl_context, std::atomic<bool>& co
         if (!message.empty()) client_peer->send_message(message);
     }
 
-	// Shutdown the client peer and stop the IO context
+    // Shutdown the client peer and stop the IO context
     client_peer->shutdown();
     io.stop();
     io_thread.join();
@@ -150,28 +150,28 @@ void run_client(io_context& io, ssl::context& ssl_context, std::atomic<bool>& co
 
 // Creates and runs the appropriate peer (host or client)
 void create_peer(const std::string& ip, const std::string& name, int port, bool is_host) {
-	// Initialize the IO context and SSL context
+    // Initialize the IO context and SSL context
     boost::asio::io_context io;
     boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tlsv12);
-	// Atomic flag to track connection status
+    // Atomic flag to track connection status
     std::atomic<bool> connected(false);
 
-	// Configure the SSL context with the necessary certificate and key files
+    // Configure the SSL context with the necessary certificate and key files
     configure_ssl_context(ssl_context);  // Call the configuration function from config.cpp
 
     try {
-		// Run the host or client based on user input
+        // Run the host or client based on user input
         if (is_host) {
-			// Run the host side of the application
+            // Run the host side of the application
             run_host(io, ssl_context, connected, ip, name, port);
         }
         else {
-			// Run the client side of the application
+            // Run the client side of the application
             run_client(io, ssl_context, connected, ip, name, port);
         }
     }
     catch (const std::exception& e) {
-		// Handle exceptions during peer creation
+        // Handle exceptions during peer creation
         std::cout << "Exception in create_peer: " << e.what() << std::endl;
     }
 }
@@ -195,7 +195,7 @@ int main() {
         cin >> mode;
         cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear newline from input buffer
 
-		// Set the mode based on user input
+        // Set the mode based on user input
         is_host = (mode == 'y' || mode == 'Y');
 
         // Prompt for port only
@@ -205,7 +205,7 @@ int main() {
         create_peer(ip, name, port, is_host);
     }
     catch (const std::exception& e) {
-		// Handle exceptions in the main function
+        // Handle exceptions in the main function
         cout << "Exception in main: " << e.what() << endl;
     }
 

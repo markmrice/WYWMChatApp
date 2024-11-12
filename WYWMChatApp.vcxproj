@@ -173,6 +173,7 @@ NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 ftxui-screen.lib
 ;
 ;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)EchoChat.exe</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

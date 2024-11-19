@@ -73,35 +73,48 @@ int get_port() {
 
 // Prompts the user to choose a colour for their name
 Color get_user_colour() {
-    try {
-        cout << "Choose a colour for your username:\n";
-        cout << "1: Red\n";
-        cout << "2: Green\n";
-        cout << "3: Blue\n";
-        cout << "4: Yellow\n";
-        cout << "5: Cyan\n";
-        cout << "6: Magenta\n";
-        cout << "Enter a number (1-6): ";
+    while (true) {
+        try {
+            cout << "Choose a colour for your username:\n";
+            cout << "1: Red\n";
+            cout << "2: Green\n";
+            cout << "3: Blue\n";
+            cout << "4: Yellow\n";
+            cout << "5: Cyan\n";
+            cout << "6: Magenta\n";
+            cout << "Enter a number (1-6): ";
 
-        int choice;
-        cin >> choice;
-        // Clear the input buffer
-        cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            int choice;
+            cin >> choice;
 
-        switch (choice) {
-        case 1: return Color::Red;
-        case 2: return Color::Green;
-        case 3: return Color::Blue;
-        case 4: return Color::Yellow;
-        case 5: return Color::Cyan;
-        case 6: return Color::Magenta;
-        default: return Color::White;
+            // Check if the input is invalid
+            if (cin.fail()) {
+                cin.clear(); // Clear the error state
+                cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Discard invalid input
+                cout << "Invalid input. Please enter a number between 1 and 6.\n";
+                continue; // Prompt the user again
+            }
+
+            // Validate the range of the input
+            if (choice < 1 || choice > 6) {
+                cout << "Invalid choice. Please enter a number between 1 and 6.\n";
+                continue; // Prompt the user again
+            }
+
+            // Return the corresponding color
+            switch (choice) {
+            case 1: return Color::Red;
+            case 2: return Color::Green;
+            case 3: return Color::Blue;
+            case 4: return Color::Yellow;
+            case 5: return Color::Cyan;
+            case 6: return Color::Magenta;
+            }
         }
-    }
-    catch (const exception& e) {
-        // Recursively call the function until a valid input is received
-        cout << "Please enter a number between 1 and 6\n";
-        return get_user_colour();
+        catch (const exception& e) {
+            // Print an error message and retry
+            cout << "An error occurred: " << e.what() << "\nPlease try again.\n";
+        }
     }
 }
 
